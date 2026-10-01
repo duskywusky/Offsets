@@ -1882,24 +1882,3 @@ namespace Decryption
 	}
 }
 ```
-</pre>
-    <script>
-    document.getElementById('copy-all').addEventListener('click', async function () {
-        const text = document.getElementById('raw').textContent;
-        const btn = this;
-        try { await navigator.clipboard.writeText(text); }
-        catch {
-            const r = document.createRange();
-            r.selectNodeContents(document.getElementById('raw'));
-            const s = window.getSelection();
-            s.removeAllRanges(); s.addRange(r);
-            try { document.execCommand('copy'); } catch (e) {}
-        }
-        btn.textContent = 'Copied';
-        btn.classList.add('ok');
-        setTimeout(function () { btn.textContent = 'Copy all'; btn.classList.remove('ok'); }, 1400);
-    });
-    </script>
-<script type="module" src="./Rust 25567513_files/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;7b1f2e9b0a13411299d6119ebf643041&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
-
-</body></html>
