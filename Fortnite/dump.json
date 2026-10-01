@@ -1,0 +1,134 @@
+GEngine: 0x1AC83068
+FNameToString: 0x4F692
+GNames: 0x1AB35980
+StaticFindObject: 0x825BF4
+StaticLoadObject: 0x42A4E
+BoneMatrix: 0x42135C
+GetBoneMatrix: 0x42135C
+DrawTransition: 0x7344242
+GetWorldCtxObj: 0x9ED4C80
+Rarity: 0x180DA748
+AccumRotation: 0xF9F781A
+
+VTable: 0x0
+Class: 0x18
+ObjectFlags: 0x10
+Outer: 0x8
+ClassDefaultObject: 0xB8
+PersistentLevel: 0x38
+StreamingLevels: 0xA0
+DefaultPhysicsVolume: 0x158
+AuthorityGameMode: 0x1C8
+GameState: 0x1C8
+Levels: 0x1E0
+OwningGameInstance: 0x1C0
+TimeSeconds: 0x7B8
+UnpausedTimeSeconds: 0x7B8
+RealTimeSeconds: 0x7C0
+AudioTimeSeconds: 0x7C8
+DeltaTimeSeconds: 0x7D4
+OriginLocation: 0x7E0
+ViewLocationsRenderedLastFrame: 0x168
+ViewMatricesRenderedLastFrame: 0x178
+CachedViewInfoRenderedLastFrame: 0x178
+Actors: 0x208
+LastSubmitTime: 0x544
+LastRenderTime: 0x548
+LastRenderTimeOnScreen: 0x54C
+FField::NamePrivate: 0x8
+FField::ClassPrivate: 0x8
+FFieldClass::CastFlags: 0x18
+
+ProcessEvent: 0x337440
+RarityStruct: 0x180DA748
+ClassPrivate: 0x18
+NamePrivate: 0x10
+
+GWorld_addr (RVA) = 0x1ac816f8
+GWorld_addr (VA) = 0x7ff6e94216f8
+decode = rotl64((raw + 0x46eb50ff) ^ 0x4899e3f4, 60)
+
+ProjectileSpeed: 0x22D8
+ProjectileGravity: 0x2064
+
+SplineMeshTargetableParameter: 0x0298
+SplineMeshStartLocParameter: 0x029C
+SplineMeshEndLocParameter: 0x02A0
+
+EndingZiplineDeployHeightZ: 0x0AD8
+
+UFortProjectileTrajectory_ZiplineDeployer Size: 0x2a8
+UFortProjectile_ZiplineDeployer Size: 0xb28
+UFortGameplayAbility_ZiplineDeployer_PrimaryFire Size: 0xb20
+UFortMovementMode_ZiplineDeployerMount Size: 0x5f0
+UObjectRedirector Size: 0x30
+
+classes SDK -> https://pastes.dev/WkYCqJghSI
+
+Stop Using UWorld Decrypt — Get World Through GEngine Instead
+i recently got back into making cheats, and honestly, the stupidity I’ve seen is abysmal.
+
+FOR THE LOVE OF GOD, STOP USING UWORLD DECRYPT. IT’S TERRIBLE.
+
+There are a million other ways to get UWorld, and I’m going to go through one of them for you skids.
+
+Instead of relying on a constantly changing encrypted UWorld pointer, you can retrieve it through the engine’s existing object chain:
+
+Code:
+
+     
+    Module Base
+        ↓
+    GEngine
+        ↓
+    GameViewport
+        ↓
+    World
+
+Here is a basic example:
+
+Code:
+
+    #include "../memory/ProcessMemory.h"
+     
+    #include <cstdint>
+     
+    namespace offsets
+    {
+        constexpr std::uintptr_t GEngine      = 0x19DE55F8;
+        constexpr std::uintptr_t GameViewport = 0xB70;
+        constexpr std::uintptr_t World        = 0x78;
+    }
+     
+    std::uintptr_t GetWorldFromGEngine()
+    {
+        auto& memory = memory::ProcessMemory::instance();
+     
+        const std::uintptr_t moduleBase = memory.get_module_base();
+        if (!moduleBase)
+            return 0;
+     
+        const std::uintptr_t engine =
+            memory.read<std::uintptr_t>(moduleBase + offsets::GEngine);
+     
+        if (!engine)
+            return 0;
+     
+        const std::uintptr_t viewport =
+            memory.read<std::uintptr_t>(engine + offsets::GameViewport);
+     
+        if (!viewport)
+            return 0;
+     
+        return memory.read<std::uintptr_t>(viewport + offsets::World);
+    }
+     
+    void ExampleUsage()
+    {
+        const std::uintptr_t world = GetWorldFromGEngine();
+     
+        if (!world)
+            return;
+     
+        // Use world here.
+    }
